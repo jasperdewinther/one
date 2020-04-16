@@ -1,0 +1,20 @@
+#the following program will start in function a,
+                            create y = 5 and x = 6,
+                            then call function b (because y is smaller than x), this will make y = 3
+                            then return the sum of y and x
+
+#function a is always where the program starts and always returns int
+?a
+#below that are all the steps within function a
+y5
+#asssigning a value to a character is as simple as entering the character name and the value
+x6
+#conditionals are defined by either <=> and confirm that the next line should be used
+y<x
+xb
+#the last statement before a new function is always the return value
+y+x
+
+#a new function is defined here
+?b
+y3
