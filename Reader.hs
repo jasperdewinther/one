@@ -9,7 +9,13 @@ readOneFile filename = do
         else error "invalid filename"
 
 cleanInput :: String -> [String]
-cleanInput s = (removeEmptyLines (splitString (removeWhitespace s) '\n'))
+cleanInput s = checkFirstLine (removeEmptyLines (splitString (removeWhitespace s) '\n'))
+
+checkFirstLine :: [String] -> [String]
+checkFirstLine s = if isQuestionmark (head (head s))
+                    then s
+                    else error "there are instructions outside functions, the instruction on the first line should always be a function declaration"
+
 
 isValidFilename :: String -> Bool
 isValidFilename [_,'.','o','n','e'] = True

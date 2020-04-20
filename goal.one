@@ -6,15 +6,15 @@
 #function a is always where the program starts and always returns int
 ?a
 #below that are all the steps within function a
-y5
+y=5
 #asssigning a value to a character is as simple as entering the character name and the value
-x6
+x=6
 #conditionals are defined by either <=> and confirm that the next line should be used
 y<x
-xb
+x=b
 #the last statement before a new function is always the return value
 y+x
 
 #a new function is defined here
 ?b
-y3
+y=3

@@ -1,7 +1,7 @@
 module Main where
 import System.Environment
 import Reader
-import LST
+import AST
 import Data.Maybe
 import System.Exit (exitFailure)
 import Data.List
@@ -23,6 +23,8 @@ main = do
     fileContent <- readOneFile $ args !! 0
     print $ cleanInput fileContent
     print $ cleanInput fileContent
-    print $ lookup 'a' newStack
     print newStack
-    print $ setStack 'b' (VariableNode 1) newStack
+    print $ setStack 'a' (ConstIntNode 1) newStack
+    print $ getFromStack 'a' $ setStack 'a' (ConstIntNode 1) newStack
+    print $ createAST $ cleanInput fileContent
+    print $ createFunctionAST $ snd $ head $ createAST $ cleanInput fileContent
