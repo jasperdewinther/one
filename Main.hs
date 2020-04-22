@@ -8,6 +8,7 @@ import Data.List
 import Data.Char
 import Data.Typeable
 import Control.Monad.IO.Class
+import Stack
 
 
 
@@ -27,4 +28,4 @@ main = do
     print $ setStack 'a' (ConstIntNode 1) newStack
     print $ getFromStack 'a' $ setStack 'a' (ConstIntNode 1) newStack
     print $ createAST $ cleanInput fileContent
-    print $ createFunctionAST $ snd $ head $ createAST $ cleanInput fileContent
+    --print $ createAST $ cleanInput fileContent

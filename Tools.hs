@@ -18,3 +18,8 @@ splitString s c = _splitString s c ""
 
 isQuestionmark :: Char -> Bool
 isQuestionmark c = c == '?'
+
+--basically a normal map function but with 2 extra parameters
+map3 :: (d -> a -> b -> f) -> a -> b -> [d] -> [f]
+map3 f _ _ [] = []
+map3 func fir sec (x:xs) = func x fir sec : map3 func fir sec xs

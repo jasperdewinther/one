@@ -18,7 +18,7 @@ extra-source-files:  readme.txt
 
 executable one
   main-is:             Main.hs
-  other-modules:       Reader AST Tools
+  other-modules:       Reader AST Tools Stack
   -- other-extensions:
   build-depends:       base >= 4.7 && < 5
   -- hs-source-dirs:
