@@ -1,5 +1,18 @@
 module Tools where
 
+data MaybeError a = NotError a | Error String
+
+
+isError :: MaybeError a -> Bool
+isError (Error _) = True
+isError _ = False
+
+getError :: MaybeError a -> String
+getError (Error m) = m
+
+getValue :: MaybeError a -> a
+getValue (NotError m) = m
+
 conditionalRemove :: [a] -> (a -> Bool) -> [a]
 conditionalRemove [] _ = []
 conditionalRemove (x:xs) f = if f x

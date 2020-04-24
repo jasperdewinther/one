@@ -9,23 +9,58 @@ import Data.Char
 import Data.Typeable
 import Control.Monad.IO.Class
 import Stack
+import Tools
 
-
+getFirstArg :: [String] -> MaybeError String
+getFirstArg s = if length s == 0
+                    then Error "no input file given"
+                    else NotError $ head s
 
 main = do
     --parse command line argument
     args <- getArgs
-    if Prelude.length args == 0
+    let firstArgErr = getFirstArg args
+    if isError firstArgErr
         then do
-            putStrLn "no input file given"
+            putStrLn $ getError firstArgErr
             exitFailure
-        else return ()
+        else print $ "parsing file: " ++ (getValue firstArgErr)
+    let firstArg = getValue firstArgErr
+
     --read given file
-    fileContent <- readOneFile $ args !! 0
-    print $ cleanInput fileContent
-    print $ cleanInput fileContent
-    print newStack
-    print $ setStack 'a' (ConstIntNode 1) newStack
-    print $ getFromStack 'a' $ setStack 'a' (ConstIntNode 1) newStack
-    print $ createAST $ cleanInput fileContent
+    let fileContentErr = readOneFile firstArg
+    if isError fileContentErr
+        then do
+            putStrLn $ getError fileContentErr
+            exitFailure
+        else print "read input succesfully"
+    fileContent <- getValue fileContentErr
+
+    --remove whitespaces and empty lines
+    let cleanedInputErr = cleanInput fileContent
+    if isError cleanedInputErr
+        then do
+            putStrLn $ getError cleanedInputErr
+            exitFailure
+        else print "cleaned input succesfully"
+    let cleanedInput = getValue cleanedInputErr
+
+    print $ cleanedInput
+    putStrLn $ prettyStrStack $ createAST cleanedInput
+    let stack = createAST cleanedInput
+    --if isError stackErr
+    --    then do
+    --        putStrLn $ getError stackErr
+    --        exitFailure
+    --    else print "read input succesfully"
+    --let stack = getValue stackErr
+
+    let executionResult = executeStackNode (getValue $ getFromStack 'a' stack ) stack
+
+    if isError$ fst executionResult
+        then do
+            putStrLn $ getError $ fst executionResult
+            exitFailure
+        else print "execution succesfull"
+    putStrLn $ prettyStrStack $ snd executionResult
     --print $ createAST $ cleanInput fileContent

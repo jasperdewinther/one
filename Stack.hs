@@ -4,8 +4,33 @@ import Data.Char
 import Data.Maybe
 import Data.List
 
-data FlowNode     = ConditionNode StackNode StackNode | ExpressionNode StackNode StackNode | AssignmentNode StackNode StackNode | StartNode [FlowNode] deriving (Show)
-data StackNode    = FunctionNode FlowNode | ConstIntNode Int | VariableNode Char | UndefinedNode deriving (Show)
+data FlowNode       = ConditionNode StackNode StackNode | ExpressionNode StackNode StackNode | AssignmentNode StackNode StackNode | StartNode [FlowNode] deriving (Show)
+data StackNode      = FunctionNode FlowNode | IntNode Int | UndefinedNode | StackVariable Char deriving (Show)
+
+executeFlowNode :: FlowNode -> [(Char, StackNode)] -> (MaybeError Int, [(Char, StackNode)])
+executeFlowNode (StartNode [x]) s = executeFlowNode x s
+executeFlowNode (StartNode (x:xs)) s = executeFlowNode x s
+executeFlowNode (AssignmentNode (StackVariable node1) node2) s = do
+                                                                    let node2Result = executeStackNode node2 s
+                                                                    if isError $ fst node2Result
+                                                                        then (fst node2Result, s)
+                                                                        else do
+                                                                            let result = setStack node1 (IntNode $ getValue $ fst node2Result) (snd node2Result)
+                                                                            if isError result
+                                                                                then (Error $ getError result, s)
+                                                                                else(fst node2Result, getValue result)
+
+executeFlowNode _ s = (Error "internal error during executeFlowNode", s)
+
+executeStackNode :: StackNode -> [(Char, StackNode)] -> (MaybeError Int, [(Char, StackNode)])
+executeStackNode (FunctionNode f) s = executeFlowNode f s
+executeStackNode (IntNode i) s = (NotError i, s)
+executeStackNode (StackVariable c) s = do
+                                        let result = getFromStack c s
+                                        if isError result
+                                            then (Error $ getError result, s)
+                                            else executeStackNode (getValue result) s
+executeStackNode (UndefinedNode) s = (Error "stacknode was undefined", s)
 
 isFunction :: StackNode -> Bool
 isFunction (FunctionNode _) = True
@@ -24,29 +49,37 @@ _integrateIntoStack a [] = a
 _integrateIntoStack (original:xs) (new:ys) = if fst original == fst new
                                               then [new] ++ _integrateIntoStack xs ys
                                               else [original] ++ (_integrateIntoStack xs $ [new]++ys)
+
 --sort stack on character
 sortStack :: [(Char, StackNode)] -> [(Char, StackNode)]
 sortStack input = sortBy (\(a,_) (b,_) -> compare a b) input
 
 --functions to set/get from stack or create a new stack
-getFromStack :: Char -> [(Char, StackNode)] -> StackNode
+getFromStack :: Char -> [(Char, StackNode)] -> MaybeError StackNode
 getFromStack c stack = if isLower c
-                        then if isUndefined $ fromJust $ lookup c stack
-                         then error $ "variable is undefined: " ++ [c]
-                         else fromJust $ lookup c stack
-                        else error $ "invalid character lookup: " ++ [c] ++ " only lower case letters are allowed"
+                        then do
+                            let lookedUp = fromJust $ lookup c stack
+                            if isUndefined lookedUp
+                                then Error $ "variable is undefined: " ++ [c]
+                                else NotError lookedUp
+                        else Error $ "invalid character lookup: " ++ [c] ++ " only lower case letters are allowed"
 
-setStack ::  Char -> StackNode -> [(Char, StackNode)] -> [(Char, StackNode)]
+setStack ::  Char -> StackNode -> [(Char, StackNode)] -> MaybeError [(Char, StackNode)]
+setStack c (StackVariable node) stack = Error "tried to set a variable to a character"
 setStack c node stack = if isLower c
-                         then map3 _stackSet c node stack
-                         else error $ "invalid character set: " ++ [c] ++ " only lower case letters are allowed"
+                         then NotError $ map3 _stackSet c node stack
+                         else Error $ "invalid character set: " ++ [c] ++ " only lower case letters are allowed"
 
 _stackSet :: (Char, StackNode) -> Char -> StackNode -> (Char, StackNode)
 _stackSet i c node = if fst i == c
-                        then if isFunction $ snd i
-                              then error $ "cant assign value to already existing function"
-                              else (c, node)
+                        then (c, node)
                         else i
+
+prettyStrStack :: [(Char, StackNode)] -> String
+prettyStrStack [] = []
+prettyStrStack (x:xs) = if isUndefined $ snd x
+                            then ""
+                            else [fst x] ++ ": " ++ (show $ snd x) ++ ['\n'] ++ (prettyStrStack xs)
 
 newStack :: [(Char, StackNode)]
 newStack = [  ('a', UndefinedNode ),

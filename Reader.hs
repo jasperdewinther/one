@@ -2,19 +2,19 @@ module Reader where
 import Tools
 
 
-readOneFile :: String -> IO String
+readOneFile :: String -> MaybeError (IO String)
 readOneFile filename = do
     if (isValidFilename filename)
-        then readFile filename
-        else error "invalid filename"
+        then NotError $ readFile filename
+        else Error "invalid filename"
 
-cleanInput :: String -> [String]
+cleanInput :: String -> MaybeError [String]
 cleanInput s = checkFirstLine (removeEmptyLines (splitString (removeWhitespace s) '\n'))
 
-checkFirstLine :: [String] -> [String]
+checkFirstLine :: [String] -> MaybeError [String]
 checkFirstLine s = if isQuestionmark (head (head s))
-                    then s
-                    else error "there are instructions outside functions, the instruction on the first line should always be a function declaration"
+                    then NotError s
+                    else Error "there are instructions outside functions, the instruction on the first line should always be a function declaration"
 
 
 isValidFilename :: String -> Bool

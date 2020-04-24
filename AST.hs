@@ -5,8 +5,6 @@ import Data.Maybe
 import Data.List
 import Stack
 
-
-
 --get all lines until a new function definition is found
 getOperationsTillFunction :: [String] -> [String]
 getOperationsTillFunction [] = []
@@ -22,8 +20,8 @@ clusterFunctions (x:xs) = if isQuestionmark (head x)
                                 else clusterFunctions xs
 
 createFlowNode :: String -> FlowNode
-createFlowNode [a,'=',b] = AssignmentNode (VariableNode a) (ConstIntNode (digitToInt b))
-createFlowNode [a,'<',b] = ConditionNode (VariableNode a) (ConstIntNode (digitToInt b))
+createFlowNode [a,'=',b] = AssignmentNode (StackVariable a) (IntNode (digitToInt b))
+createFlowNode [a,'<',b] = ConditionNode (StackVariable a) (IntNode (digitToInt b))
 
 createFunctionNodes :: [(Char, [String])] -> [(Char, StackNode)]
 createFunctionNodes [] = []
