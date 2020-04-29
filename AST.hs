@@ -4,6 +4,7 @@ import Data.Char
 import Data.Maybe
 import Data.List
 import Stack
+import Text.Read
 
 --get all lines until a new function definition is found
 getOperationsTillFunction :: [String] -> [String]
@@ -19,9 +20,23 @@ clusterFunctions (x:xs) = if isQuestionmark (head x)
                                 then [(head $ reverse x, (getOperationsTillFunction xs))] ++ (clusterFunctions xs)
                                 else clusterFunctions xs
 
-createFlowNode :: String -> FlowNode
-createFlowNode [a,'=',b] = AssignmentNode (StackVariable a) (IntNode (digitToInt b))
-createFlowNode [a,'<',b] = ConditionNode (StackVariable a) (IntNode (digitToInt b))
+createFlowNode :: String -> MaybeError FlowNode
+createFlowNode (a:'=':b) = AssignmentNode (StackVariable a) (getExpression b)
+createFlowNode (a:'<':b) = ConditionNode (StackVariable a) (getExpression b)
+
+getExpression :: String -> MaybeError ExpressionNode
+getExpression s | allNumbers s = do
+                                    let result = readMaybe s
+                                    if isJust result
+                                      then NotError IntNode $ asJust result
+                                      else Error "number could not be parsed, might be too long"
+                | otherwise s = Error "epic fail"
+
+allNumbers :: String -> Bool
+allNumbers [] = True
+allNumbers (x:xs) = if isDigit x
+                      then allNumbers xs
+                      else False
 
 createFunctionNodes :: [(Char, [String])] -> [(Char, StackNode)]
 createFunctionNodes [] = []

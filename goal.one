@@ -1,5 +1,5 @@
 #the following program will start in function a,
-                            create y = 5 and x = 6,
+                            create y = 5 and x = 6+1,
                             then call function b (because y is smaller than x), this will make y = 3
                             then return the sum of y and x
 
@@ -8,7 +8,7 @@
 #below that are all the steps within function a
 y=5
 #asssigning a value to a character is as simple as entering the character name and the value
-x=6
+x=6+1
 #conditionals are defined by either <=> and confirm that the next line should be used
 y<x
 x=b

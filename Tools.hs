@@ -1,5 +1,8 @@
 module Tools where
 
+import Data.Char
+
+
 data MaybeError a = NotError a | Error String
 
 
@@ -36,3 +39,15 @@ isQuestionmark c = c == '?'
 map3 :: (d -> a -> b -> f) -> a -> b -> [d] -> [f]
 map3 f _ _ [] = []
 map3 func fir sec (x:xs) = func x fir sec : map3 func fir sec xs
+
+isIllegalVariableCharacter :: Char -> Bool
+isIllegalVariableCharacter c = if isDigit c ||
+                                  c == '<' ||
+                                  c == '>' ||
+                                  c == '=' ||
+                                  c == '?' ||
+                                  c == '*' ||
+                                  c == '/' ||
+                                  c == '%'
+                                  then False
+                                  else True
