@@ -6,6 +6,10 @@ import Data.Char
 data MaybeError a = NotError a | Error String
 
 
+isValue :: MaybeError a -> Bool
+isValue (NotError _) = True
+isValue _ = False
+
 isError :: MaybeError a -> Bool
 isError (Error _) = True
 isError _ = False
@@ -41,13 +45,28 @@ map3 f _ _ [] = []
 map3 func fir sec (x:xs) = func x fir sec : map3 func fir sec xs
 
 isIllegalVariableCharacter :: Char -> Bool
-isIllegalVariableCharacter c = if isDigit c ||
-                                  c == '<' ||
-                                  c == '>' ||
-                                  c == '=' ||
-                                  c == '?' ||
-                                  c == '*' ||
-                                  c == '/' ||
-                                  c == '%'
-                                  then False
-                                  else True
+isIllegalVariableCharacter c = if c == '<' || --compare
+                                  c == '>' || --compare
+                                  c == '=' || --compare
+                                  c == '?' || --function definition
+                                  isMathmaticalOperation c ||
+                                  isDigit c ||
+                                  c == '~'    --assignment
+                                  then True
+                                  else False
+isMathmaticalOperation :: Char -> Bool
+isMathmaticalOperation c = if c == '*' ||
+                              c == '/' ||
+                              c == '+' ||
+                              c == '-'
+                              then True
+                              else False
+
+fst3 :: (a,b,c) -> a
+fst3 (x,_,_) = x
+
+snd3 :: (a,b,c) -> b
+snd3 (_,x,_) = x
+
+trd3 :: (a,b,c) -> c
+trd3 (_,_,x) = x

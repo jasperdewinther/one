@@ -1,6 +1,7 @@
 module Reader where
 import Tools
-
+import System.IO.UTF8
+import Prelude hiding (readFile, writeFile)
 
 readOneFile :: String -> MaybeError (IO String)
 readOneFile filename = do
@@ -22,7 +23,7 @@ isValidFilename [_,'.','o','n','e'] = True
 isValidFilename _ = False
 
 isInvalidWhitespace :: Char -> Bool
-isInvalidWhitespace c = c==' ' || c=='\t'
+isInvalidWhitespace c = c==' ' || c=='\t' || c == '\r'
 
 isEmptyString :: String -> Bool
 isEmptyString s = s == ""
