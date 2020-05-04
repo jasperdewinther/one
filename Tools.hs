@@ -10,6 +10,9 @@ isValue :: MaybeError a -> Bool
 isValue (NotError _) = True
 isValue _ = False
 
+getValue :: MaybeError a -> a
+getValue (NotError m) = m
+
 isError :: MaybeError a -> Bool
 isError (Error _) = True
 isError _ = False
@@ -17,24 +20,25 @@ isError _ = False
 getError :: MaybeError a -> String
 getError (Error m) = m
 
-getValue :: MaybeError a -> a
-getValue (NotError m) = m
-
+--removes elements from list that return true on given function
 conditionalRemove :: [a] -> (a -> Bool) -> [a]
 conditionalRemove [] _ = []
 conditionalRemove (x:xs) f = if f x
                             then conditionalRemove xs f
                             else x : conditionalRemove xs f
 
--- the second string is the previous characters in the same section
--- cant be made generic because empty strings need to be made
-_splitString :: String -> Char -> String -> [String]
-_splitString [] seperator s = [s]
-_splitString (x:xs) seperator s = if x == seperator
-                                    then (s : _splitString xs seperator "")
-                                    else _splitString xs seperator (s++[x])
+-- a = input
+-- b = element to split on
+-- a = previous section
+-- a = empty a to use as a constructor
+-- [a] = splitted list
+_splitString :: a -> b -> a -> a -> [a]
+_splitString [] seperator s constructor = [s]
+_splitString (x:xs) seperator s constructor = if x == seperator
+                                    then (s : _splitString xs seperator constructor constructor)
+                                    else _splitString xs seperator (s++[x]) constructor
 splitString :: String -> Char -> [String]
-splitString s c = _splitString s c ""
+splitString s c = _splitString s c "" ""
 
 isQuestionmark :: Char -> Bool
 isQuestionmark c = c == '?'
