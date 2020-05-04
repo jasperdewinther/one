@@ -40,16 +40,18 @@ executeFlowNode (AssignmentNode (StackVariableNode node) expr) stack = do
                                                                                 then (True, NotError (getValue $ fst expressionResult), getValue newStack)
                                                                                 else (True, Error $ getError newStack, (snd expressionResult))
                                                                             else (True, fst expressionResult, snd expressionResult)
-executeFlowNode (ConditionNode expr1 condition expr2) stack =
+executeFlowNode (ConditionNode expr1 '<' expr2) stack = conditionHelper expr1 expr2 (<) stack
+executeFlowNode (ConditionNode expr1 '>' expr2) stack = conditionHelper expr1 expr2 (>) stack
+executeFlowNode (ConditionNode expr1 '=' expr2) stack = conditionHelper expr1 expr2 (==) stack
 executeFlowNode _ stack = (True, Error "Internal error", stack)
 
-conditionHelper :: ExpressionNode -> ExpressionNode -> (Int -> Int -> Int) -> [(Char,StackNode)] -> (MaybeError Int, [(Char,StackNode)])
-do
+conditionHelper :: ExpressionNode -> ExpressionNode -> (Int -> Int -> Bool) -> [(Char,StackNode)] -> (Bool, MaybeError Int, [(Char,StackNode)])
+conditionHelper  expr1 expr2 f stack = do
                                             let resultLeft = getExpressionResult expr1 stack
                                             let resultRight = getExpressionResult expr2 $ snd resultLeft
                                             if (isValue $ fst resultLeft) && (isValue $ fst resultRight)
-                                              then (NotError $ f (getValue $ fst resultLeft) (getValue $ fst resultRight), snd resultRight)
-                                              else (Error $ "invalid expression:\n" ++ (show expr1) ++ (show expr2), stack)
+                                              then (f (getValue $ fst resultLeft) (getValue $ fst resultRight), NotError $ boolToInt $ f (getValue $ fst resultLeft) (getValue $ fst resultRight), snd resultRight)
+                                              else (True, Error $ "invalid expression:\n" ++ (show expr1) ++ (show expr2), stack)
 
 getExpressionResult :: ExpressionNode -> [(Char,StackNode)] -> (MaybeError Int, [(Char,StackNode)])
 getExpressionResult (IntNode expr) stack = (NotError expr, stack)
@@ -58,9 +60,9 @@ getExpressionResult (StackVariableNode expr) stack = do
                                                         if isValue result
                                                             then getStackResult (getValue result) stack
                                                             else (Error $ getError result, stack)
-getExpressionResult (OperationNode expr1 '+' expr2) stack = operationHelper expr1 expr2 addition stack
-getExpressionResult (OperationNode expr1 '-' expr2) stack = operationHelper expr1 expr2 minus stack
-getExpressionResult (OperationNode expr1 '*' expr2) stack = operationHelper expr1 expr2 multiply stack
+getExpressionResult (OperationNode expr1 '+' expr2) stack = operationHelper expr1 expr2 (+) stack
+getExpressionResult (OperationNode expr1 '-' expr2) stack = operationHelper expr1 expr2 (-) stack
+getExpressionResult (OperationNode expr1 '*' expr2) stack = operationHelper expr1 expr2 (*) stack
 getExpressionResult (OperationNode expr1 '/' expr2) stack = operationHelper expr1 expr2 divide stack
 getExpressionResult (OperationNode expr1 a expr2) stack = (Error $ "this operation does not exist: \n" ++ [a], stack)
 
@@ -71,14 +73,8 @@ operationHelper  expr1 expr2 f stack = do
                                             if (isValue $ fst resultLeft) && (isValue $ fst resultRight)
                                               then (NotError $ f (getValue $ fst resultLeft) (getValue $ fst resultRight), snd resultRight)
                                               else (Error $ "invalid expression:\n" ++ (show expr1) ++ (show expr2), stack)
-multiply :: Int -> Int -> Int
-multiply left right = left * right
-minus :: Int -> Int -> Int
-minus left right = left - right
 divide :: Int -> Int -> Int
 divide left right = left `div` right
-addition :: Int -> Int -> Int
-addition left right = left + right
 
 
 getStackResult :: StackNode -> [(Char,StackNode)] -> (MaybeError Int, [(Char,StackNode)])

@@ -27,19 +27,18 @@ createFlowNode (a:'~':b) = if isIllegalVariableCharacter a || (isError $ getExpr
                                     then Error $ "error while creating flownode in line: \n" ++ [a] ++ ['~'] ++ b ++ "\nillegal character found: \n" ++ [a]
                                     else Error $ "error while creating flownode in line: \n" ++ [a] ++ ['~'] ++ b ++ "\nwith the following error: \n" ++ (getError $ getExpression b)
                             else NotError $ AssignmentNode (StackVariableNode a) (getValue $ getExpression b)
-createFlowNode (a:'<':b) = if isIllegalVariableCharacter a || (isError $ getExpression b)
-                                then do
-                                    if isIllegalVariableCharacter a
-                                        then Error $ "error while creating flownode in line: \n" ++ [a] ++ ['<'] ++ b ++ "\nillegal character found: \n" ++ [a]
-                                        else Error $ "error while creating flownode in line: \n" ++ [a] ++ ['<'] ++ b ++ "\nwith the following error: \n" ++ (getError $ getExpression b)
-                            else NotError $ ConditionNode (StackVariableNode a) '<' (getValue $ getExpression b)
-createFlowNode (a:'=':b) = if isIllegalVariableCharacter a || (isError $ getExpression b)
-                                then do
-                                    if isIllegalVariableCharacter a
-                                        then Error $ "error while creating flownode in line: \n" ++ [a] ++ ['='] ++ b ++ "\nillegal character found: \n" ++ [a]
-                                        else Error $ "error while creating flownode in line: \n" ++ [a] ++ ['='] ++ b ++ "\nwith the following error: \n" ++ (getError $ getExpression b)
-                            else NotError $ ConditionNode (StackVariableNode a) '=' (getValue $ getExpression b)
+createFlowNode (a:'<':b) = createConditionNodeAbstract (a:'<':b) '<'
+createFlowNode (a:'=':b) = createConditionNodeAbstract (a:'=':b) '='
+createFlowNode (a:'>':b) = createConditionNodeAbstract (a:'>':b) '>'
 createFlowNode s = Error $ "invalid command: \n" ++ s ++ "\nnote that all variables and functions can only consist of one character"
+
+createConditionNodeAbstract :: String -> Char -> MaybeError FlowNode
+createConditionNodeAbstract (a:o:b) char = if isIllegalVariableCharacter a || (isError $ getExpression b) || not (o == char)
+                                                then
+                                                    if isIllegalVariableCharacter a
+                                                        then Error $ "error while creating flownode in line: \n" ++ [a] ++ [char] ++ b ++ "\nillegal character found: \n" ++ [a]
+                                                        else Error $ "error while creating flownode in line: \n" ++ [a] ++ [char] ++ b ++ "\nwith the following error: \n" ++ (getError $ getExpression b)
+                                                else NotError $ ConditionNode (StackVariableNode a) char (getValue $ getExpression b)
 
 getExpression :: String -> MaybeError ExpressionNode
 getExpression s = getSubExpressions s
@@ -58,7 +57,7 @@ getSubExpressions s = do
                                     then if isIllegalVariableCharacter $ head s
                                         then Error $ "invalid expression: \n" ++ s
                                         else NotError $ StackVariableNode $ head s
-                                    else Error $ "invalid expression: \n" ++ s
+                                    else Error $ "invalid expression: \n" ++ s ++ "\nnote that all variables can only be defined as one character"
                             else do
                                 let result = splitAt (1+(fromJust $ index)) s
                                 let headStr = reverse $ tail $ reverse $ fst result
@@ -79,13 +78,16 @@ getSubExpressions s = do
                                     else if length headStr == 1
                                          then if isIllegalVariableCharacter $ head headStr
                                              then Error $ "invalid expression: \n" ++ headStr
-                                             else NotError $ StackVariableNode $ head headStr
+                                             else do
+                                                let operation = head $ reverse $ fst result
+                                                if isMathmaticalOperation operation
+                                                    then do
+                                                        let subExpression = getSubExpressions $ snd result
+                                                        if isValue subExpression
+                                                            then NotError $ OperationNode ( StackVariableNode $ head headStr) operation (getValue subExpression)
+                                                            else Error $ getError subExpression
+                                                    else Error $ "undefined operation:\n" ++ s
                                         else Error $ "undefined operation:\n" ++ headStr
-
-
-
-
-
 
 
 allNumbers :: String -> Bool

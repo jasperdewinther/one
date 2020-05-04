@@ -70,3 +70,7 @@ snd3 (_,x,_) = x
 
 trd3 :: (a,b,c) -> c
 trd3 (_,_,x) = x
+
+boolToInt :: Bool -> Int
+boolToInt True = 1
+boolToInt False = 0

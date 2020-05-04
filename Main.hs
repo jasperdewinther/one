@@ -27,7 +27,7 @@ main = do
         then do
             putStrLn $ getError firstArgErr
             exitFailure
-        else print $ "parsing file: " ++ (getValue firstArgErr)
+        else return ()
     let firstArg = getValue firstArgErr
 
     --read given file
@@ -36,7 +36,7 @@ main = do
         then do
             putStrLn $ getError fileContentErr
             exitFailure
-        else print "read input succesfully"
+        else return ()
     fileContent <- getValue fileContentErr
 
     --remove whitespaces and empty lines
@@ -45,38 +45,24 @@ main = do
         then do
             putStrLn $ getError cleanedInputErr
             exitFailure
-        else print "cleaned input succesfully"
+        else return ()
     let cleanedInput = getValue cleanedInputErr
 
-    print $ cleanedInput
     let stackErr = createAST cleanedInput
     if isError stackErr
         then do
+            putStrLn $ "input text:\n" ++ (show cleanedInput)
             putStrLn $ getError stackErr
+
             exitFailure
-        else putStrLn $ prettyStrStack $ getValue stackErr
+        else return ()
     let stack = getValue stackErr
 
     let programResult = run stack
     if isError $ fst programResult
         then do
             putStrLn $ getError $ fst programResult
+            putStrLn $ "stackdump:\n" ++ (prettyStrStack $ snd programResult)
             exitFailure
-        else putStrLn $ (show $ getValue $ fst programResult) ++ "\n" ++ (prettyStrStack $ snd programResult)
-
-    --if isError stackErr
-    --    then do
-    --        putStrLn $ getError stackErr
-    --        exitFailure
-    --    else print "read input succesfully"
-    --let stack = getValue stackErr
-
-    --let executionResult = executeStackNode (getValue $ getFromStack 'a' stack ) stack
-
-    --if isError$ fst executionResult
-    --    then do
-    --        putStrLn $ getError $ fst executionResult
-    --        exitFailure
-    --    else print "execution succesfull"
-    --putStrLn $ prettyStrStack $ snd executionResult
-    --print $ createAST $ cleanInput fileContent
+        else putStrLn $ prettyStrStack $ snd programResult
+    putStrLn $ show $ getValue $ fst programResult
