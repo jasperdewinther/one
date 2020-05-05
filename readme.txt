@@ -1,5 +1,8 @@
-build/run using the following command:
+Build/run using the following command:
 cabal run one programs/a.one
+
+To build the docs use:
+cabal haddock one
 
 There are multiple test programs in the programs folder.
 - a shows most functionalities with a lot of comments

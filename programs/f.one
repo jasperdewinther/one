@@ -1,7 +1,7 @@
 ?a
 #s defines the goal fibonacci number
 #c is the start, as the first two values are 1 and 1
-s~20
+s~50
 c~2
 
 x~1

@@ -1,3 +1,5 @@
+-- |This module is used for reading a file.
+
 module Reader where
 import Tools
 import System.IO.UTF8
@@ -19,22 +21,21 @@ cleanInput s = checkFirstLine (removeEmptyLines (splitString (removeWhitespace s
 
 -- |Check if the first character of the first line is a questionmark, otherwise return Error.
 checkFirstLine :: [String] -> MaybeError [String]
-checkFirstLine s = if isQuestionmark (head (head s))
+checkFirstLine s = if (head (head s)) == '?'
                     then NotError s
                     else Error "there are instructions outside functions, the instruction on the first line should always be a function declaration"
 
-
+-- |Check if a given string is a valid filename, this is only the case when the filename consists of one character and the .one extension.
 isValidFilename :: String -> Bool
 isValidFilename [_,'.','o','n','e'] = True
 isValidFilename s | any (\x -> x=='\\' || x=='/') s = isValidFilename $ head $ reverse $ _splitOn s (\x -> x=='\\' || x=='/') "" ""
                   | otherwise = False
 
-isInvalidWhitespace :: Char -> Bool
-isInvalidWhitespace c = c==' ' || c=='\t' || c == '\r'
-
+-- |remove tabs, spaces or carriage return characters
 removeWhitespace :: String -> String
-removeWhitespace s = conditionalRemove s isInvalidWhitespace
+removeWhitespace s = conditionalRemove s (\c -> c==' ' || c=='\t' || c == '\r')
 
+-- |remove empty lines, or lines that start with #, from a list of strings
 removeEmptyLines :: [String] -> [String]
 removeEmptyLines s = conditionalRemove s (\x -> x=="" || (head x) == '#')
 
