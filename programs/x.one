@@ -1,3 +1,7 @@
+#A test with quite a few unicode characters
+#Execution is very fast (<3 seconds).
+#However if using debug, printing the stack takes very long.
+
 ?a
 !~1
 "~1

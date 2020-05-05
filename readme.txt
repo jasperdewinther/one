@@ -1,2 +1,14 @@
 build/run using the following command:
-cabal run one p.one
+cabal run one programs/a.one
+
+There are multiple test programs in the programs folder.
+- a shows most functionalities with a lot of comments
+- c shows asian characters being used
+- e shows emojis being used
+- f calculates numbers in the fibonacci sequence
+- l shows a recursive loop
+- x shows almost all unicode characters being used
+
+If you want to see the stack at the end of the program, with all variables and all created abstract syntax tree's.
+Run the program with debug at the end, as shown below:
+cabal run one programs/a.one debug

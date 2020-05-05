@@ -27,18 +27,17 @@ createFlowNode (a:'~':b) = if isIllegalVariableCharacter a || (isError $ getExpr
                                     then Error $ "error while creating flownode in line: \n" ++ [a] ++ ['~'] ++ b ++ "\nillegal character found: \n" ++ [a]
                                     else Error $ "error while creating flownode in line: \n" ++ [a] ++ ['~'] ++ b ++ "\nwith the following error: \n" ++ (getError $ getExpression b)
                             else NotError $ AssignmentNode (StackVariableNode a) (getValue $ getExpression b)
-createFlowNode (a:'<':b) = createConditionNodeAbstract (a:'<':b) '<'
-createFlowNode (a:'=':b) = createConditionNodeAbstract (a:'=':b) '='
-createFlowNode (a:'>':b) = createConditionNodeAbstract (a:'>':b) '>'
-createFlowNode s = Error $ "invalid command: \n" ++ s ++ "\nnote that all variables and functions can only consist of one character"
+createFlowNode s | elem '<' s = createConditionNodeAbstract (head $ splitString s '<') '<' (reverse $ head $ reverse $ splitString s '<')
+                 | elem '=' s = createConditionNodeAbstract (head $ splitString s '=') '=' (reverse $ head $ reverse $ splitString s '=')
+                 | elem '>' s = createConditionNodeAbstract (head $ splitString s '>') '>' (reverse $ head $ reverse $ splitString s '>')
+                 | otherwise = Error $ "invalid command: \n" ++ s ++ "\nnote that all variables and functions can only consist of one character"
 
-createConditionNodeAbstract :: String -> Char -> MaybeError FlowNode
-createConditionNodeAbstract (a:o:b) char = if isIllegalVariableCharacter a || (isError $ getExpression b) || not (o == char)
-                                                then
-                                                    if isIllegalVariableCharacter a
-                                                        then Error $ "error while creating flownode in line: \n" ++ [a] ++ [char] ++ b ++ "\nillegal character found: \n" ++ [a]
-                                                        else Error $ "error while creating flownode in line: \n" ++ [a] ++ [char] ++ b ++ "\nwith the following error: \n" ++ (getError $ getExpression b)
-                                                else NotError $ ConditionNode (StackVariableNode a) char (getValue $ getExpression b)
+createConditionNodeAbstract :: String -> Char -> String -> MaybeError FlowNode
+createConditionNodeAbstract a char b = if isError $ getExpression a
+                                          then Error $ "error while creating flownode in line: \n" ++ a ++ [char] ++ b ++ "\nwith the following error: \n" ++ (getError $ getExpression a)
+                                          else if isError $ getExpression b
+                                              then Error $ "error while creating flownode in line: \n" ++ a ++ [char] ++ b ++ "\nwith the following error: \n" ++ (getError $ getExpression b)
+                                              else NotError $ ConditionNode (getValue $ getExpression a) char (getValue $ getExpression b)
 
 getExpression :: String -> MaybeError ExpressionNode
 getExpression s = getSubExpressions s

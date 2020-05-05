@@ -1,0 +1,32 @@
+?a
+#s defines the goal fibonacci number
+#c is the start, as the first two values are 1 and 1
+s~20
+c~2
+
+x~1
+y~1
+
+]~b
+
+x<y
+r~y
+x=y
+r~y
+x>y
+r~x
+
+r~r
+
+#This, function b, is the main recursive loop to calculate the fibonacci sequence
+?b
+c<s
+x~x+y
+c<s
+c~c+1
+c<s
+y~x+y
+c<s
+c~c+1
+c<s
+]~b

@@ -32,13 +32,13 @@ conditionalRemove (x:xs) f = if f x
 -- a = previous section
 -- a = empty a to use as a constructor
 -- [a] = splitted list
-_splitString :: a -> b -> a -> a -> [a]
-_splitString [] seperator s constructor = [s]
-_splitString (x:xs) seperator s constructor = if x == seperator
-                                    then (s : _splitString xs seperator constructor constructor)
-                                    else _splitString xs seperator (s++[x]) constructor
+_splitOn :: [b] -> (b -> Bool) -> [b] -> [b] -> [[b]]
+_splitOn [] shoudlSeperate s constructor = [s]
+_splitOn (x:xs) shouldSeperate s constructor = if shouldSeperate x
+                                    then (s : _splitOn xs shouldSeperate constructor constructor)
+                                    else _splitOn xs shouldSeperate (s++[x]) constructor
 splitString :: String -> Char -> [String]
-splitString s c = _splitString s c "" ""
+splitString s c = _splitOn s (\x -> x == c) "" ""
 
 isQuestionmark :: Char -> Bool
 isQuestionmark c = c == '?'
@@ -78,3 +78,12 @@ trd3 (_,_,x) = x
 boolToInt :: Bool -> Int
 boolToInt True = 1
 boolToInt False = 0
+
+getFirstArg :: [String] -> MaybeError String
+getFirstArg s = if length s == 0
+                    then Error "no input file given"
+                    else NotError $ head s
+lastArgIsDebug :: [String] -> Bool
+lastArgIsDebug s = if (head $ reverse s) == "debug"
+                      then True
+                      else False

@@ -1,0 +1,39 @@
+#This is a comment
+#Comments cant be placed in a line that contains code
+?a
+#This is function (as show by the ?) a, it is always the start of the program, just like main in c++.
+p~1
+#The character ~ defines a variable
+#Note that functions and variabled share a global stack
+#This means that you could overwrite functions with variables at runtime
+p~p*9+5
+#More complex expressions can also be done
+#Do note that * and / do not have priority over + and -
+r~p+了*了
+#The last statement in the a function is the return value of the program
+#In this case i define r as the last thing i do, and thus r is the return value
+
+
+
+?了
+#All default unicode characters are supported
+#More complex unicode characters are not supported, such as colored emojis
+💪~1
+了~9
+#This is legal syntax, however 了 can only be called once as a function. After that 了 is a variable
+💪 > 了
+#Comparisons can be done with <, = and >. This will run the expected check between two expressions.
+#Depending on the result of the condition the next line will be executed or not.
+l~100
+#l will not be defined here as 了 is 9 and 💪 is 1.
+💪*2 < 5*了
+k~100
+#The last command of a function is the return value of the function.
+#If the last command of the function is not executed, the comparison will be returned, which is 0 (as the last command is not executed).
+
+
+
+?b
+#Recursion is also supported.
+#But PLS do not make infinite recursion (like shown below) unless you have infinite ram.
+l~b

@@ -13,15 +13,11 @@ import Tools
 import Runner
 import GHC.IO.Encoding
 
-getFirstArg :: [String] -> MaybeError String
-getFirstArg s = if length s == 0
-                    then Error "no input file given"
-                    else NotError $ head s
-
 main = do
     --parse command line argument
     setLocaleEncoding utf8
     args <- getArgs
+    let debug = lastArgIsDebug args
     let firstArgErr = getFirstArg args
     if isError firstArgErr
         then do
@@ -64,5 +60,7 @@ main = do
             putStrLn $ getError $ fst programResult
             putStrLn $ "stackdump:\n" ++ (prettyStrStack $ snd programResult)
             exitFailure
-        else putStrLn $ prettyStrStack $ snd programResult
+        else if debug
+            then putStrLn $ prettyStrStack $ snd programResult
+            else return ()
     putStrLn $ show $ getValue $ fst programResult
