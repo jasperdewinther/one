@@ -14,6 +14,7 @@ import Tools
 import Runner
 import GHC.IO.Encoding
 
+-- |Exit program with error code 4294967295
 myUnexpectedExit :: IO a
 myUnexpectedExit = exitWith $ ExitFailure $ 4294967295
 

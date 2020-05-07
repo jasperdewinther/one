@@ -68,6 +68,7 @@ isMathmaticalOperation c = if c == '*' ||
                               c == '-'
                               then True
                               else False
+
 -- |Return the mathematical priority, or -1 if the character isn't a mathematical operation
 getMathematicalPriority :: Char -> Int
 getMathematicalPriority '*' = 2
