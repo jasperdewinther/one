@@ -1,7 +1,7 @@
-#One programming language
+# One programming language
 This repo contains the one interpreter. The name one comes from the fact that all functions and variables are defined as a single character.
 
-##Features
+## Features
 - recursion
 - mathematical operations *, /, + and -
 - mathematical order of operations
@@ -12,7 +12,7 @@ This repo contains the one interpreter. The name one comes from the fact that al
 - unicode support (visually not optimal when debugging)
 - decently fast
 
-##How to
+## How to
 Build/run using the following command:
 cabal run one programs/a.one
 
@@ -25,7 +25,7 @@ cabal run one programs/a.one debug
 To build the docs use:
 cabal haddock one
 
-##Example programs
+## Example programs
 There are multiple test programs in the programs folder.
 - a shows most functionalities with a lot of comments
 - c shows asian characters being used
