@@ -68,6 +68,13 @@ isMathmaticalOperation c = if c == '*' ||
                               c == '-'
                               then True
                               else False
+-- |Return the mathematical priority, or -1 if the character isn't a mathematical operation
+getMathematicalPriority :: Char -> Int
+getMathematicalPriority '*' = 2
+getMathematicalPriority '/' = 2
+getMathematicalPriority '+' = 1
+getMathematicalPriority '-' = 1
+getMathematicalPriority _ = -1
 
 -- |Get first element in tuple.
 fst3 :: (a,b,c) -> a

@@ -31,9 +31,9 @@ createFlowNode (a:'~':b) = if isIllegalVariableCharacter a || (isError $ getExpr
                                     then Error $ "error while creating flownode in line: \n" ++ [a] ++ ['~'] ++ b ++ "\nillegal character found: \n" ++ [a]
                                     else Error $ "error while creating flownode in line: \n" ++ [a] ++ ['~'] ++ b ++ "\nwith the following error: \n" ++ (getError $ getExpression b)
                             else NotError $ AssignmentNode (StackVariableNode a) (getValue $ getExpression b)
-createFlowNode s | elem '<' s = createConditionNodeAbstract (head $ splitString s '<') '<' (reverse $ head $ reverse $ splitString s '<')
-                 | elem '=' s = createConditionNodeAbstract (head $ splitString s '=') '=' (reverse $ head $ reverse $ splitString s '=')
-                 | elem '>' s = createConditionNodeAbstract (head $ splitString s '>') '>' (reverse $ head $ reverse $ splitString s '>')
+createFlowNode s | elem '<' s = createConditionNodeAbstract (head $ splitString s '<') '<' (head $ reverse $ splitString s '<')
+                 | elem '=' s = createConditionNodeAbstract (head $ splitString s '=') '=' (head $ reverse $ splitString s '=')
+                 | elem '>' s = createConditionNodeAbstract (head $ splitString s '>') '>' (head $ reverse $ splitString s '>')
                  | otherwise = Error $ "invalid command: \n" ++ s ++ "\nnote that all variables and functions can only consist of one character"
 
 -- |Parses two strings to ExpressionNode and create a ConditionNode.
@@ -44,52 +44,63 @@ createConditionNodeAbstract a char b = if isError $ getExpression a
                                               then Error $ "error while creating flownode in line: \n" ++ a ++ [char] ++ b ++ "\nwith the following error: \n" ++ (getError $ getExpression b)
                                               else NotError $ ConditionNode (getValue $ getExpression a) char (getValue $ getExpression b)
 
+
 -- |Very big and ugly recursive function that parses a string into an ExpressionNode.
 getExpression :: String -> MaybeError ExpressionNode
-getExpression s = do
-                        let index = findIndex (\x -> isMathmaticalOperation x) s
-                        if isNothing index
-                            then if allNumbers s
-                                then do
-                                    let number = readMaybe s
-                                    if isJust number
-                                        then NotError $ IntNode $ fromJust number
-                                        else Error $ "number could not be parsed, might be too long: \n" ++ s
-                                else if length s == 1
-                                    then if isIllegalVariableCharacter $ head s
-                                        then Error $ "invalid expression: \n" ++ s
-                                        else NotError $ StackVariableNode $ head s
-                                    else Error $ "invalid expression: \n" ++ s ++ "\nnote that all variables can only be defined as one character"
-                            else do
-                                let result = splitAt (1+(fromJust $ index)) s
-                                let headStr = reverse $ tail $ reverse $ fst result
-                                if allNumbers headStr
-                                    then do
-                                        let number = readMaybe headStr :: Maybe Int
-                                        if isJust number
-                                            then do
-                                                let operation = head $ reverse $ fst result
-                                                if isMathmaticalOperation operation
-                                                    then do
-                                                        let subExpression = getExpression $ snd result
-                                                        if isValue subExpression
-                                                            then NotError $ OperationNode (IntNode $ fromJust number) operation (getValue subExpression)
-                                                            else Error $ getError subExpression
-                                                    else Error $ "undefined operation:\n" ++ s
-                                            else Error $ "number could not be parsed, might be too long: \n" ++ headStr ++ ":" ++ (fst result)
-                                    else if length headStr == 1
-                                         then if isIllegalVariableCharacter $ head headStr
-                                             then Error $ "invalid expression: \n" ++ headStr
-                                             else do
-                                                let operation = head $ reverse $ fst result
-                                                if isMathmaticalOperation operation
-                                                    then do
-                                                        let subExpression = getExpression $ snd result
-                                                        if isValue subExpression
-                                                            then NotError $ OperationNode ( StackVariableNode $ head headStr) operation (getValue subExpression)
-                                                            else Error $ getError subExpression
-                                                    else Error $ "undefined operation:\n" ++ s
-                                        else Error $ "undefined operation:\n" ++ headStr
+getExpression s | isNothing (findIndex (\x -> isMathmaticalOperation x) s) && (allNumbers s) = do let number = readMaybe s
+                                                                                                  if isJust number
+                                                                                                    then NotError $ IntNode $ fromJust number
+                                                                                                    else Error $ "number could not be parsed, might be too long: \n" ++ s
+                | isNothing $ findIndex (\x -> isMathmaticalOperation x) s = do if length s == 1
+                                                                                then if isIllegalVariableCharacter $ head s
+                                                                                    then Error $ "invalid expression: \n" ++ s
+                                                                                    else NotError $ StackVariableNode $ head s
+                                                                                else Error $ "invalid expression: \n" ++ s ++ "\nnote that all variables can only be defined as one character"
+                | any (\x -> (getMathematicalPriority x) == 1) s = do
+                                                                  let index = findIndex (\x -> (getMathematicalPriority x) == 1) s
+                                                                  let result = splitAt (1+(fromJust $ index)) s
+                                                                  let headStr = reverse $ tail $ reverse $ fst result
+                                                                  let operation = head $ reverse $ fst result
+                                                                  if isMathmaticalOperation operation
+                                                                      then do
+                                                                          let subExpression1 = getExpression $ headStr
+                                                                          let subExpression2 = getExpression $ snd result
+                                                                          if isValue subExpression1
+                                                                              then if isValue subExpression2
+                                                                                 then NotError $ OperationNode (getValue subExpression1) operation (getValue subExpression2)
+                                                                                 else Error $ getError subExpression2
+                                                                              else Error $ getError subExpression1
+                                                                      else Error $ "undefined operation:\n" ++ s
+                | any (\x -> (getMathematicalPriority x) == 2) s = do
+                                                                  let index = findIndex (\x -> (getMathematicalPriority x) == 2) s
+                                                                  let result = splitAt (1+(fromJust $ index)) s
+                                                                  let headStr = reverse $ tail $ reverse $ fst result
+                                                                  let operation = head $ reverse $ fst result
+                                                                  if isMathmaticalOperation operation
+                                                                      then do
+                                                                          let subExpression1 = getExpression $ headStr
+                                                                          let subExpression2 = getExpression $ snd result
+                                                                          if isValue subExpression1
+                                                                              then if isValue subExpression2
+                                                                                 then NotError $ OperationNode (getValue subExpression1) operation (getValue subExpression2)
+                                                                                 else Error $ getError subExpression2
+                                                                              else Error $ getError subExpression1
+                                                                      else Error $ "undefined operation:\n" ++ s
+                | otherwise = do
+                                 let index = findIndex (\x -> isMathmaticalOperation x) s
+                                 let result = splitAt (1+(fromJust $ index)) s
+                                 let headStr = reverse $ tail $ reverse $ fst result
+                                 let operation = head $ reverse $ fst result
+                                 if isMathmaticalOperation operation
+                                     then do
+                                         let subExpression1 = getExpression $ headStr
+                                         let subExpression2 = getExpression $ snd result
+                                         if isValue subExpression1
+                                             then if isValue subExpression2
+                                                then NotError $ OperationNode (getValue subExpression1) operation (getValue subExpression2)
+                                                else Error $ getError subExpression2
+                                             else Error $ getError subExpression1
+                                     else Error $ "undefined operation:\n" ++ s
 
 -- |Check if a list only contains digits.
 allNumbers :: String -> Bool

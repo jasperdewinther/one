@@ -8,7 +8,7 @@ p~1
 #This means that you could overwrite functions with variables at runtime
 p~p*9+5
 #More complex expressions can also be done
-#Do note that * and / do not have priority over + and -
+#Do note that * and / have priority over + and -
 r~p+了*了
 #The last statement in the a function is the return value of the program
 #In this case i define r as the last thing i do, and thus r is the return value

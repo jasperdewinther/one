@@ -4,7 +4,7 @@ import System.Environment
 import Reader
 import AST
 import Data.Maybe
-import System.Exit (exitFailure)
+import System.Exit 
 import Data.List
 import Data.Char
 import Data.Typeable
@@ -13,6 +13,9 @@ import Stack
 import Tools
 import Runner
 import GHC.IO.Encoding
+
+myUnexpectedExit :: IO a
+myUnexpectedExit = exitWith $ ExitFailure $ 4294967295
 
 -- |Run program and print result.
 main = do
@@ -26,7 +29,7 @@ main = do
         --handle potential errors
         then do
             putStrLn $ getError firstArgErr
-            exitFailure
+            myUnexpectedExit
         else return ()
     let firstArg = getValue firstArgErr
 
@@ -36,7 +39,7 @@ main = do
         --handle potential errors
         then do
             putStrLn $ getError fileContentErr
-            exitFailure
+            myUnexpectedExit
         else return ()
     fileContent <- getValue fileContentErr
 
@@ -46,7 +49,7 @@ main = do
         --handle potential errors
         then do
             putStrLn $ getError cleanedInputErr
-            exitFailure
+            myUnexpectedExit
         else return ()
     let cleanedInput = getValue cleanedInputErr
 
@@ -56,7 +59,7 @@ main = do
         then do
             putStrLn $ "input text:\n" ++ (show cleanedInput)
             putStrLn $ getError stackErr
-            exitFailure
+            myUnexpectedExit
         else return ()
     let stack = getValue stackErr
 
@@ -66,9 +69,10 @@ main = do
         then do
             putStrLn $ getError $ fst programResult
             putStrLn $ "stackdump:\n" ++ (prettyStrStack $ snd programResult)
-            exitFailure
+            myUnexpectedExit
         else if debug
             --if debug info should be printed, print stack
             then putStrLn $ prettyStrStack $ snd programResult
             else return ()
     putStrLn $ show $ getValue $ fst programResult
+    exitWith $ ExitFailure $ getValue $ fst programResult
