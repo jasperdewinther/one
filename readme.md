@@ -14,16 +14,13 @@ This repo contains the one interpreter. The name one comes from the fact that al
 
 ## How to
 U can use my precompiled exe (in the bin folder) or build/run using the following command:
-
-cabal run one programs/a.one
+```cabal run one programs/a.one```
 
 If you want to see the stack at the end of the program, with all variables and all created abstract syntax tree's.
 Run the program with debug at the end, as shown below:
-
-cabal run one programs/a.one debug
+```cabal run one programs/a.one debug```
 
 To build the docs use:
-
 ```cabal haddock one```
 
 ## Example programs
