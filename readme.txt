@@ -19,9 +19,11 @@ cabal run one programs/a.one debug
 
 Features
 - recursion
-- fast
 - mathematical operations *, /, + and -
 - mathematical order of operations
+- show syntax error before running
 - stacktrace on error
 - stackdump on error
 - option to view stack at end of program
+- unicode support (visually not optimal when debugging)
+- decently fast
