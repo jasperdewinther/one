@@ -1,7 +1,7 @@
 #This is a comment
 #Comments cant be placed in a line that contains code
 ?a
-#This is function (as show by the ?) a, it is always the start of the program, just like main in c++.
+#This is a function (as show by the ?) a, it is always the start of the program, just like main in c++.
 p~1
 #The character ~ defines a variable
 #Note that functions and variabled share a global stack
