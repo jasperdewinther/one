@@ -13,6 +13,7 @@ import Stack
 import Tools
 import Runner
 import GHC.IO.Encoding
+import System.Mem
 
 -- |Exit program with error code 4294967295
 myUnexpectedExit :: IO a
@@ -20,6 +21,9 @@ myUnexpectedExit = exitWith $ ExitFailure $ 4294967295
 
 -- |Run program and print result.
 main = do
+    --limit to 4GB of memory
+    setAllocationCounter 4000000000
+    enableAllocationLimit
     --parse command line argument
     setLocaleEncoding utf8
     args <- getArgs
