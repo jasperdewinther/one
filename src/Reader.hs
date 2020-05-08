@@ -11,7 +11,7 @@ readOneFile :: String -> MaybeError (IO String)
 readOneFile filename = do
     if (isValidFilename filename)
         then NotError $ readFile filename
-        else Error "invalid filename"
+        else Error "invalid filename, note that all source files have to use the following naming scheme: \"p.one\" where p is always a single character"
 
 -- |Remove whitespaces, split the string on newlines and check if the first line contains a questionmark.
 -- The first line must be a questionmark otherwise there are operations outside functions.

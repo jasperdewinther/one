@@ -69,14 +69,14 @@ getExpressionResult (OperationNode expr1 '*' expr2) stack = operationHelper expr
 getExpressionResult (OperationNode expr1 '/' expr2) stack = operationHelper expr1 expr2 divide stack
 getExpressionResult (OperationNode expr1 a expr2) stack = (Error $ "this operation does not exist: \n" ++ [a], stack)
 
--- |An abstraction layer for handeling mathmatical operations.
+-- |An abstraction layer for handling mathematical operations.
 operationHelper :: ExpressionNode -> ExpressionNode -> (Int -> Int -> Int) -> [(Char,StackNode)] -> (MaybeError Int, [(Char,StackNode)])
 operationHelper  expr1 expr2 f stack = do
                                             let resultLeft = getExpressionResult expr1 stack
                                             let resultRight = getExpressionResult expr2 $ snd resultLeft
                                             if (isValue $ fst resultLeft) && (isValue $ fst resultRight)
                                               then (NotError $ f (getValue $ fst resultLeft) (getValue $ fst resultRight), snd resultRight)
-                                              else (Error $ "invalid expression:\n" ++ (show expr1) ++ (show expr2), stack)
+                                              else (Error $ "invalid expression:\n" ++ (show expr1)  ++ " " ++ (show expr2), stack)
 -- |Integer division.
 divide :: Int -> Int -> Int
 divide left right = left `div` right

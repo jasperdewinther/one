@@ -5,10 +5,10 @@ This repo contains the one interpreter. The name one comes from the fact that al
 - recursion
 - mathematical operations *, /, + and -
 - mathematical order of operations
-- show syntax error before running
+- show syntax errors before running
 - stacktrace on error
 - stackdump on error
-- option to view stack at end of program
+- option to view the stack after execution
 - unicode support (visually not optimal when debugging)
 - decently fast
 
@@ -33,5 +33,7 @@ There are multiple test programs in the programs folder.
 - p contains an assignment of an undefined variable. This is illegal, crashes the interpreter and shows the stacktrace and stackdump.
 - x shows almost all unicode characters being used
 
+## Video explanation
+https://youtu.be/xAcbNWbwMI4
 
 
