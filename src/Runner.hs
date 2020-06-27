@@ -17,15 +17,13 @@ run stack | isValue $ getFromStack 'a' stack = executeFunction (getFlowNodes $ g
 -- The return tuple contains the result and the resulting stack.
 executeFunction :: [FlowNode] -> Bool -> Int -> [(Char, StackNode)] -> (MaybeError Int, [(Char, StackNode)])
 executeFunction [] _ i stack = (NotError i, stack)
-executeFunction (x:xs) True i stack = do
-                                        let result = executeFlowNode x stack
-                                        if isValue $ snd3 result
-                                            then do
-                                                let executeNextCommand = fst3 result
-                                                let returnValue = getValue $ snd3 result
-                                                let newStack = trd3 result
-                                                executeFunction xs executeNextCommand returnValue newStack
-                                        else (Error $ "error while executing command:\n" ++ show x ++ "\n" ++ getError (snd3 result), stack)
+executeFunction (x:xs) True i stack | isValue $ snd3 result = let executeNextCommand = fst3 result
+                                                                  returnValue = getValue $ snd3 result
+                                                                  newStack = trd3 result
+                                                              in executeFunction xs executeNextCommand returnValue newStack
+                                    | otherwise = (Error $ "error while executing command:\n" ++ show x ++ "\n" ++ getError (snd3 result), stack)
+                                     where result = executeFlowNode x stack 
+    
 -- Skip this flownode if false
 executeFunction (x:xs) False i stack = executeFunction xs True i stack
 
