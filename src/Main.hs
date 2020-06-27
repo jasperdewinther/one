@@ -14,10 +14,11 @@ import Tools
 import Runner
 import GHC.IO.Encoding
 import System.Mem
+import Control.Monad
 
 -- |Exit program with error code 4294967295
 myUnexpectedExit :: IO a
-myUnexpectedExit = exitWith $ ExitFailure $ 4294967295
+myUnexpectedExit = exitWith $ ExitFailure 4294967295
 
 -- |Run program and print result.
 main = do
@@ -30,42 +31,30 @@ main = do
     --check if debug info should be printed
     let debug = lastArgIsDebug args
     let firstArgErr = getFirstArg args
-    if isError firstArgErr
-        --handle potential errors
-        then do
-            putStrLn $ getError firstArgErr
-            myUnexpectedExit
-        else return ()
+    Control.Monad.when (isError firstArgErr)
+        $ do putStrLn $ getError firstArgErr
+             myUnexpectedExit
     let firstArg = getValue firstArgErr
 
     --read given file
     let fileContentErr = readOneFile firstArg
-    if isError fileContentErr
-        --handle potential errors
-        then do
-            putStrLn $ getError fileContentErr
-            myUnexpectedExit
-        else return ()
+    Control.Monad.when (isError fileContentErr)
+        $ do putStrLn $ getError fileContentErr
+             myUnexpectedExit
     fileContent <- getValue fileContentErr
 
     --remove whitespaces and empty lines
     let cleanedInputErr = cleanInput fileContent
-    if isError cleanedInputErr
-        --handle potential errors
-        then do
-            putStrLn $ getError cleanedInputErr
-            myUnexpectedExit
-        else return ()
+    Control.Monad.when (isError cleanedInputErr)
+        $ do putStrLn $ getError cleanedInputErr
+             myUnexpectedExit
     let cleanedInput = getValue cleanedInputErr
 
     let stackErr = createAST cleanedInput
-    if isError stackErr
-        --handle potential errors
-        then do
-            putStrLn $ "input text:\n" ++ (show cleanedInput)
-            putStrLn $ getError stackErr
-            myUnexpectedExit
-        else return ()
+    Control.Monad.when (isError stackErr)
+        $ do putStrLn $ "input text:\n" ++ show cleanedInput
+             putStrLn $ getError stackErr
+             myUnexpectedExit
     let stack = getValue stackErr
 
     let programResult = run stack
@@ -73,11 +62,10 @@ main = do
         --handle potential errors
         then do
             putStrLn $ getError $ fst programResult
-            putStrLn $ "stackdump:\n" ++ (prettyStrStack $ snd programResult)
+            putStrLn $ "stackdump:\n" ++ prettyStrStack (snd programResult)
             myUnexpectedExit
-        else if debug
+        else Control.Monad.when debug
             --if debug info should be printed, print stack
-            then putStrLn $ prettyStrStack $ snd programResult
-            else return ()
-    putStrLn $ show $ getValue $ fst programResult
+                $ do putStrLn $ prettyStrStack $ snd programResult
+    print $ getValue $ fst programResult
     exitWith $ ExitFailure $ getValue $ fst programResult

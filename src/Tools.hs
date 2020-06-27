@@ -30,44 +30,43 @@ getError (Error m) = m
 -- |Removes elements from list that return true on given function.
 conditionalRemove :: [a] -> (a -> Bool) -> [a]
 conditionalRemove [] _ = []
-conditionalRemove (x:xs) f = if f x
-                            then conditionalRemove xs f
-                            else x : conditionalRemove xs f
+conditionalRemove (x:xs) f | f x = conditionalRemove xs f
+                           | otherwise = x : conditionalRemove xs f
 
 -- |This function splits a list using a given function.
 -- The third and fourth parameters should be empty lists.
 _splitOn :: [b] -> (b -> Bool) -> [b] -> [b] -> [[b]]
-_splitOn [] shoudlSeperate s constructor = [s]
-_splitOn (x:xs) shouldSeperate s constructor = if shouldSeperate x
-                                    then (s : _splitOn xs shouldSeperate constructor constructor)
-                                    else _splitOn xs shouldSeperate (s++[x]) constructor
+_splitOn [] shouldSeperate s constructor = [s]
+_splitOn (x:xs) shouldSeperate s constructor | shouldSeperate x = s : _splitOn xs shouldSeperate constructor constructor
+                                             | otherwise = _splitOn xs shouldSeperate (s++[x]) constructor
 
 -- |Wrapper around _splitOn for strings.
 splitString :: String -> Char -> [String]
-splitString s c = _splitOn s (\x -> x == c) "" ""
+splitString s c = _splitOn s (== c) "" ""
 
 -- |Check if a character is invalid.
 -- This is the case when it is either a comparison operator (<=>) a mathematical operator (+-*/) a digit (0..9) an assignment operator (~) or a comment identifier (#).
 isIllegalVariableCharacter :: Char -> Bool
-isIllegalVariableCharacter c = if c == '<' || --compare
-                                  c == '>' || --compare
-                                  c == '=' || --compare
-                                  c == '?' || --function definition
-                                  isMathmaticalOperation c ||
-                                  isDigit c ||
-                                  c == '~' ||   --assignment
-                                  c == '#' --comment
-                                  then True
-                                  else False
+isIllegalVariableCharacter '<' = True
+isIllegalVariableCharacter '>' = True
+isIllegalVariableCharacter '=' = True
+isIllegalVariableCharacter '?' = True
+isIllegalVariableCharacter '~' = True
+isIllegalVariableCharacter '#' = True
+isIllegalVariableCharacter c | isMathmaticalOperation c = True
+                             | isDigit c = True
+                             | otherwise = False
+
+
+
 
 -- |Check if a character is a mathematical operator (+-*/).
 isMathmaticalOperation :: Char -> Bool
-isMathmaticalOperation c = if c == '*' ||
-                              c == '/' ||
-                              c == '+' ||
-                              c == '-'
-                              then True
-                              else False
+isMathmaticalOperation '*' = True
+isMathmaticalOperation '/' = True
+isMathmaticalOperation '+' = True
+isMathmaticalOperation '-' = True
+isMathmaticalOperation _ = False
 
 -- |Return the mathematical priority, or -1 if the character isn't a mathematical operation
 getMathematicalPriority :: Char -> Int
@@ -96,12 +95,11 @@ boolToInt False = 0
 
 -- |Get first element from list or return error
 getFirstArg :: [a] -> MaybeError a
-getFirstArg s = if length s == 0
-                    then Error "no input file given"
-                    else NotError $ head s
+getFirstArg [] = Error "no input file given"
+getFirstArg s = NotError $ head s
 
 -- |Check if the last element of a list of strings is "debug"
 lastArgIsDebug :: [String] -> Bool
-lastArgIsDebug s = if (head $ reverse s) == "debug"
-                      then True
-                      else False
+lastArgIsDebug [] = False
+lastArgIsDebug ["debug"] = True
+lastArgIsDebug (_:xs) = lastArgIsDebug xs

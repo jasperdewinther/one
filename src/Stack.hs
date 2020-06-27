@@ -2,7 +2,6 @@
 module Stack where
 import Tools
 import Data.Char
-import Data.Maybe
 import Data.List
 import Data.Maybe
 
@@ -26,29 +25,30 @@ isFunction _ = False
 
 -- |Get a StackNode from stack. When the stack gets bigger this function becomes slower as simple lists are used, not a binary tree.
 getFromStack :: Char -> [(Char, StackNode)] -> MaybeError StackNode
-getFromStack c stack = do
-                            let lookedUp = lookup c stack
-                            if isJust lookedUp
-                                 then NotError $ fromJust lookedUp
-                                 else Error $ "variable is undefined: " ++ [c]
+getFromStack c stack | isInStack c stack = NotError $ fromJust $ lookup c stack
+                     | otherwise = Error $ "variable is undefined: " ++ [c]
+
+-- |Check if a certain character is in the stack.
+isInStack :: Char -> [(Char, StackNode)] -> Bool
+isInStack c stack | any (\(char, node) -> c == char) stack = True
+                     | otherwise = False
+
 -- |Set a value on the stack. When the stack gets bigger this function becomes slower as simple lists are used, not a binary tree.
 -- |This wraps _stackSet with a check for illegal characters.
 setStack ::  Char -> StackNode -> [(Char, StackNode)] -> MaybeError [(Char, StackNode)]
-setStack c node stack = if isIllegalVariableCharacter c
-                         then Error $ "invalid character set: " ++ [c] ++ " is an illegal character"
-                         else NotError $ _stackSet c node stack
+setStack c node stack | isIllegalVariableCharacter c = Error $ "invalid character set: " ++ [c] ++ " is an illegal character"
+                      | otherwise = NotError $ _stackSet c node stack
 
 -- |Set a value on the stack. When the stack gets bigger this function becomes slower as simple lists are used, not a binary tree.
 _stackSet :: Char -> StackNode -> [(Char, StackNode)] -> [(Char, StackNode)]
 _stackSet c node [] = [(c, node)]
-_stackSet c node (n:t) = if fst n == c
-                            then [(c,node)] ++ t
-                            else [n] ++ (_stackSet c node t)
+_stackSet c node (n:t) | fst n == c = (c,node) : t
+                       | otherwise = n : _stackSet c node t
 
 -- |Get a string that represents the stack nicely.
 prettyStrStack :: [(Char, StackNode)] -> String
 prettyStrStack [] = []
-prettyStrStack (x:xs) = [fst x] ++ ": " ++ (show $ snd x) ++ ['\n'] ++ (prettyStrStack xs)
+prettyStrStack (x:xs) = [fst x] ++ ": " ++ show (snd x) ++ ['\n'] ++ prettyStrStack xs
 
 -- |Create empty stack
 newStack :: [(Char, StackNode)]

@@ -12,6 +12,11 @@ This repo contains the one interpreter. The name one comes from the fact that al
 - unicode support (visually not optimal when debugging)
 - decently fast
 
+## Limitations
+- only integers can be used
+- output cant be negative (unsigned integer is used as output)
+- all variable and function names have to consist of a single character
+
 ## How to
 U can use my precompiled exe (in the bin folder) or build/run using the following command:
 ```cabal run one programs/a.one```
