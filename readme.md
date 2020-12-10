@@ -18,7 +18,7 @@ This repo contains the one interpreter. The name one comes from the fact that al
 - all variable and function names have to consist of a single character
 
 ## How to
-U can use my precompiled exe (in the bin folder) or build/run using the following command:
+Build/run using the following command:
 ```cabal run one programs/a.one```
 
 If you want to see the stack at the end of the program, with all variables and all created abstract syntax tree's.
